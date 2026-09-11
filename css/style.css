@@ -10,19 +10,19 @@ input, textarea, select { font: inherit; }
 
 /* ---------- Design Tokens ---------- */
 :root {
-  --color-bg: #fbf6f2;
-  --color-bg-alt: #f6ece6;
+  --color-bg: #faf6f0;
+  --color-bg-alt: #f1e9db;
   --color-surface: #ffffff;
-  --color-text: #2c2420;
-  --color-text-soft: #6f645d;
-  --color-primary: #c98b7a;
-  --color-primary-dark: #a86a5b;
-  --color-accent: #cbb08a;
+  --color-text: #262320;
+  --color-text-soft: #6e665c;
+  --color-primary: #2a2521;
+  --color-primary-dark: #100d0b;
+  --color-accent: #b6935e;
   --color-sage: #8a9a80;
-  --color-border: #ece0d8;
+  --color-border: #e7dcc9;
 
-  --font-display: 'Fraunces', serif;
-  --font-body: 'Manrope', sans-serif;
+  --font-display: 'Sanchez', Rockwell, Georgia, serif;
+  --font-body: 'Noto Sans', Arial, sans-serif;
 
   --radius-lg: 28px;
   --radius-md: 18px;
@@ -41,6 +41,9 @@ input, textarea, select { font: inherit; }
     --color-surface: #262019;
     --color-text: #f3ece5;
     --color-text-soft: #c4b8ae;
+    --color-primary: #c9a876;
+    --color-primary-dark: #a98652;
+    --color-accent: #d3b57e;
     --color-border: #3a2f28;
     --shadow-soft: 0 20px 45px -25px rgba(0,0,0,0.6);
     --shadow-card: 0 10px 30px -18px rgba(0,0,0,0.5);
@@ -81,7 +84,7 @@ h1, h2, h3 {
   letter-spacing: -0.01em;
 }
 
-em { font-style: italic; color: var(--color-primary); }
+em { font-style: italic; color: var(--color-accent); }
 
 .eyebrow {
   display: inline-block;
@@ -89,7 +92,7 @@ em { font-style: italic; color: var(--color-primary); }
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--color-primary-dark);
+  color: var(--color-accent);
   margin: 0 0 14px;
 }
 .eyebrow.center { display: block; text-align: center; }
@@ -172,13 +175,30 @@ em { font-style: italic; color: var(--color-primary); }
 }
 
 .logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
   font-family: var(--font-display);
   font-size: 1.5rem;
   font-weight: 600;
   color: var(--color-text);
   flex-shrink: 0;
 }
-.logo span { color: var(--color-primary); }
+.logo-mark {
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.footer-logo-full { display: inline-block; }
+.footer-logo-full img {
+  height: 72px;
+  width: auto;
+  border-radius: 10px;
+}
+.logo span { color: var(--color-accent); }
 
 .main-nav ul { display: flex; gap: 32px; }
 .main-nav a {
@@ -238,12 +258,12 @@ em { font-style: italic; color: var(--color-primary); }
 }
 .blob-1 {
   width: 480px; height: 480px;
-  background: radial-gradient(circle, #f2c9bc, transparent 70%);
+  background: radial-gradient(circle, #ecdcc0, transparent 70%);
   top: -160px; right: -120px;
 }
 .blob-2 {
   width: 380px; height: 380px;
-  background: radial-gradient(circle, #e2d6b8, transparent 70%);
+  background: radial-gradient(circle, #ded5c4, transparent 70%);
   bottom: -140px; left: -100px;
 }
 
@@ -373,7 +393,7 @@ em { font-style: italic; color: var(--color-primary); }
 .hours-table th { font-weight: 700; color: var(--color-text); width: 32px; }
 .hours-table tr.today th,
 .hours-table tr.today td {
-  color: var(--color-primary-dark);
+  color: var(--color-accent);
   font-weight: 700;
 }
 
@@ -465,7 +485,7 @@ em { font-style: italic; color: var(--color-primary); }
 .price-row .price {
   font-family: var(--font-display);
   font-size: 1.25rem;
-  color: var(--color-primary-dark);
+  color: var(--color-accent);
   font-weight: 600;
 }
 .price-card.featured {
@@ -481,7 +501,7 @@ em { font-style: italic; color: var(--color-primary); }
   position: absolute;
   top: -12px; right: 20px;
   background: #fff;
-  color: var(--color-primary-dark);
+  color: var(--color-accent);
   font-size: 0.72rem;
   font-weight: 800;
   letter-spacing: 0.05em;
@@ -522,7 +542,7 @@ em { font-style: italic; color: var(--color-primary); }
   display: block;
   font-size: 0.85rem;
   font-weight: 700;
-  color: var(--color-primary-dark);
+  color: var(--color-accent);
   margin-top: 4px;
 }
 .reviews-summary a:hover { text-decoration: underline; }
@@ -667,7 +687,7 @@ em { font-style: italic; color: var(--color-primary); }
 .gutschein {
   position: relative;
   background:
-    linear-gradient(135deg, rgba(201, 139, 122, 0.88) 0%, rgba(168, 106, 91, 0.92) 100%),
+    linear-gradient(135deg, rgba(38, 33, 29, 0.82) 0%, rgba(16, 13, 11, 0.9) 100%),
     url("../assets/photos/headspa-rinse.jpeg") center 30% / cover no-repeat;
   color: #fff;
 }
@@ -804,17 +824,15 @@ em { font-style: italic; color: var(--color-primary); }
 .footer-nav { display: flex; gap: 26px; flex-wrap: wrap; }
 .footer-nav a { font-weight: 600; font-size: 0.9rem; color: var(--color-text-soft); }
 .footer-nav a:hover { color: var(--color-primary-dark); }
-.footer-social { display: flex; gap: 14px; }
+.footer-social { display: flex; gap: 12px; }
 .footer-social a {
   width: 42px; height: 42px;
   display: flex; align-items: center; justify-content: center;
-  border-radius: 50%;
-  border: 1.5px solid var(--color-border);
-  color: var(--color-text);
-  transition: all 0.2s ease;
+  border-radius: 13px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
-.footer-social svg { width: 18px; height: 18px; }
-.footer-social a:hover { background: var(--color-primary); border-color: var(--color-primary); color: #fff; }
+.footer-social svg { width: 24px; height: 24px; border-radius: 8px; }
+.footer-social a:hover { transform: translateY(-3px); box-shadow: var(--shadow-card); }
 
 .footer-bottom {
   display: flex;

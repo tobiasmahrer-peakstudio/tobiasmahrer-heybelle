@@ -222,6 +222,17 @@ em { font-style: italic; color: var(--color-accent); }
 }
 .header-phone:hover { color: var(--color-primary-dark); }
 
+.header-whatsapp {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  transition: transform 0.2s ease;
+}
+.header-whatsapp:hover { transform: translateY(-2px); }
+
 .nav-toggle {
   display: none;
   flex-direction: column;

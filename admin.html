@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="de-CH">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>heybelle – Backoffice</title>
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sanchez&family=Noto+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/admin.css">
+</head>
+<body class="admin-body">
+
+<!-- LOGIN SCREEN -->
+<div class="admin-login" id="admin-login">
+  <form class="admin-login-card" id="login-form">
+    <img src="assets/photos/logo-mark.jpeg" alt="heybelle" class="admin-login-logo">
+    <h1>Backoffice</h1>
+    <p>Melde dich an, um Behandlungen, Preise und Öffnungszeiten zu verwalten.</p>
+    <input type="password" id="login-password" placeholder="Passwort" autocomplete="current-password" required>
+    <button type="submit" class="btn btn-primary btn-full">Anmelden</button>
+    <p class="admin-login-error" id="login-error" hidden>Falsches Passwort.</p>
+  </form>
+</div>
+
+<!-- ADMIN DASHBOARD -->
+<div class="admin-dashboard" id="admin-dashboard" hidden>
+  <header class="admin-header">
+    <a href="index.html" class="admin-header-logo">
+      <img src="assets/photos/logo-mark.jpeg" alt="heybelle">
+      <span>Backoffice</span>
+    </a>
+    <div class="admin-header-actions">
+      <span class="admin-save-note" id="save-note" role="status" aria-live="polite"></span>
+      <button type="button" class="btn btn-ghost btn-small" id="btn-export">Exportieren</button>
+      <label class="btn btn-ghost btn-small admin-import-label">
+        Importieren
+        <input type="file" id="import-file" accept="application/json" hidden>
+      </label>
+      <button type="button" class="btn btn-ghost btn-small" id="btn-reset">Zurücksetzen</button>
+      <a href="index.html" target="_blank" class="btn btn-ghost btn-small">Seite ansehen ↗</a>
+      <button type="button" class="btn btn-primary btn-small" id="btn-logout">Abmelden</button>
+    </div>
+  </header>
+
+  <main class="admin-main">
+    <nav class="admin-tabs">
+      <button type="button" class="admin-tab-btn active" data-admin-tab="hours">Öffnungszeiten</button>
+      <button type="button" class="admin-tab-btn" data-admin-tab="gesicht">Gesicht</button>
+      <button type="button" class="admin-tab-btn" data-admin-tab="brows">Augenbrauen &amp; Wimpern</button>
+      <button type="button" class="admin-tab-btn" data-admin-tab="headspa">Japanese Head Spa</button>
+      <button type="button" class="admin-tab-btn" data-admin-tab="laser">Haarentfernung</button>
+      <button type="button" class="admin-tab-btn" data-admin-tab="settings">Einstellungen</button>
+    </nav>
+
+    <!-- Opening hours -->
+    <section class="admin-panel active" data-admin-panel="hours">
+      <h2>Öffnungszeiten</h2>
+      <p class="admin-hint">Diese Zeiten steuern die "Jetzt geöffnet"-Anzeige und die Öffnungszeiten-Tabelle auf der Website.</p>
+      <div class="hours-editor" id="hours-editor"></div>
+    </section>
+
+    <!-- Service categories -->
+    <section class="admin-panel" data-admin-panel="gesicht">
+      <h2>Gesicht</h2>
+      <div class="treatments-editor" data-treatments="gesicht"></div>
+      <button type="button" class="btn btn-ghost admin-add-btn" data-add-treatment="gesicht">+ Behandlung hinzufügen</button>
+    </section>
+
+    <section class="admin-panel" data-admin-panel="brows">
+      <h2>Augenbrauen &amp; Wimpern</h2>
+      <div class="treatments-editor" data-treatments="brows"></div>
+      <button type="button" class="btn btn-ghost admin-add-btn" data-add-treatment="brows">+ Behandlung hinzufügen</button>
+    </section>
+
+    <section class="admin-panel" data-admin-panel="headspa">
+      <h2>Japanese Head Spa</h2>
+      <div class="treatments-editor" data-treatments="headspa"></div>
+      <button type="button" class="btn btn-ghost admin-add-btn" data-add-treatment="headspa">+ Behandlung hinzufügen</button>
+    </section>
+
+    <section class="admin-panel" data-admin-panel="laser">
+      <h2>Haarentfernung</h2>
+      <h3 class="admin-subhead">Ganzkörper-Behandlungen</h3>
+      <div class="treatments-editor" data-treatments="laser"></div>
+      <button type="button" class="btn btn-ghost admin-add-btn" data-add-treatment="laser">+ Behandlung hinzufügen</button>
+
+      <h3 class="admin-subhead">Einzelzonen</h3>
+      <div class="zones-editor" data-zones-editor="laser"></div>
+      <button type="button" class="btn btn-ghost admin-add-btn" data-add-zone="laser">+ Zone hinzufügen</button>
+    </section>
+
+    <!-- Settings -->
+    <section class="admin-panel" data-admin-panel="settings">
+      <h2>Einstellungen</h2>
+      <div class="admin-card">
+        <h3 class="admin-subhead">Passwort ändern</h3>
+        <p class="admin-hint">Das aktuelle Passwort gilt für dieses Backoffice. Nach dem Ändern wirst du beim nächsten Anmelden das neue Passwort brauchen.</p>
+        <div class="admin-form-row">
+          <label for="new-password">Neues Passwort</label>
+          <input type="password" id="new-password" placeholder="Neues Passwort" autocomplete="new-password">
+        </div>
+        <button type="button" class="btn btn-primary btn-small" id="btn-change-password">Passwort speichern</button>
+        <p class="admin-save-note" id="password-note" role="status" aria-live="polite"></p>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>

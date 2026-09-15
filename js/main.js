@@ -71,7 +71,7 @@ contactForm.addEventListener('submit', (e) => {
 
   const subject = encodeURIComponent(`Terminanfrage: ${service}`);
   const body = encodeURIComponent(
-    `Name: ${name}\nE-Mail: ${email}\nTelefon: ${phone || '-'}\nInteresse: ${service}\n\nNachricht:\n${message}`
+    `Name: ${name}\nE-Mail: ${email || '-'}\nTelefon: ${phone}\nInteresse: ${service}\n\nNachricht:\n${message || '-'}`
   );
 
   window.location.href = `mailto:info@heybelle.ch?subject=${subject}&body=${body}`;
@@ -82,17 +82,75 @@ contactForm.addEventListener('submit', (e) => {
 // ---------- Footer year ----------
 document.getElementById('year').textContent = new Date().getFullYear();
 
+// ---------- Content-driven rendering (services, prices, hours) ----------
+const siteContent = loadContent();
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str == null ? '' : String(str);
+  return div.innerHTML;
+}
+
+function renderPriceCard(t) {
+  const hasSale = t.salePrice != null && t.salePrice !== '' && Number(t.salePrice) < Number(t.price);
+  const featured = t.topSeller || t.tag || hasSale;
+
+  const badges = [];
+  if (t.topSeller) badges.push({ label: 'Top-Seller', cls: 'badge-topseller' });
+  if (hasSale) badges.push({ label: 'Aktion', cls: 'badge-sale' });
+  if (t.tag && !t.topSeller) badges.push({ label: t.tag, cls: '' });
+
+  const priceHtml = hasSale
+    ? `<span class="price-old">${escapeHtml(t.price)} CHF</span><span class="price price-sale">${escapeHtml(t.salePrice)} CHF</span>`
+    : `<span class="price">${escapeHtml(t.price)} CHF</span>`;
+
+  const badgesHtml = badges.length
+    ? `<div class="badges">${badges.map(b => `<span class="badge ${b.cls}">${escapeHtml(b.label)}</span>`).join('')}</div>`
+    : '';
+
+  return `
+    <div class="price-card${featured ? ' featured' : ''}${hasSale ? ' on-sale' : ''}">
+      ${badgesHtml}
+      <h3>${escapeHtml(t.name)}</h3>
+      <p>${escapeHtml(t.desc)}</p>
+      <div class="price-row"><span>${escapeHtml(t.duration)}</span>${priceHtml}</div>
+    </div>
+  `;
+}
+
+function renderTreatments() {
+  document.querySelectorAll('[data-category]').forEach(grid => {
+    const cat = siteContent.categories.find(c => c.id === grid.dataset.category);
+    if (!cat) return;
+    grid.innerHTML = cat.treatments.map(renderPriceCard).join('');
+  });
+
+  document.querySelectorAll('[data-zones]').forEach(grid => {
+    const cat = siteContent.categories.find(c => c.id === grid.dataset.zones);
+    if (!cat || !cat.zones) return;
+    grid.innerHTML = cat.zones.map(z => `
+      <div class="zone-row"><span>${escapeHtml(z.name)}</span><span>${escapeHtml(z.price)} CHF</span></div>
+    `).join('');
+  });
+}
+
+renderTreatments();
+
 // ---------- Live opening status ----------
-const OPENING_HOURS = {
-  0: null,       // Sonntag – geschlossen
-  1: [9, 20],
-  2: [9, 20],
-  3: [9, 20],
-  4: [9, 20],
-  5: [9, 20],
-  6: [9, 16],
-};
 const DAY_NAMES = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
+
+function renderHoursTable() {
+  const body = document.getElementById('hours-table-body');
+  if (!body) return;
+  const order = [1, 2, 3, 4, 5, 6, 0];
+  body.innerHTML = order.map(day => {
+    const h = siteContent.hours[day];
+    const label = h.closed ? 'Geschlossen' : `${h.open}–${h.close}`;
+    return `<tr data-day="${day}"><th>${DAY_NAMES[day]}</th><td>${label}</td></tr>`;
+  }).join('');
+}
+
+renderHoursTable();
 
 function getZurichNow() {
   const parts = new Intl.DateTimeFormat('en-US', {
@@ -119,12 +177,17 @@ function formatTime(totalMinutes) {
   return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
 }
 
+function parseTimeToMinutes(hhmm) {
+  const [h, m] = hhmm.split(':').map(Number);
+  return h * 60 + (m || 0);
+}
+
 function findNextOpening(fromDay, fromMinutes) {
   for (let offset = 0; offset <= 7; offset++) {
     const day = (fromDay + offset) % 7;
-    const hours = OPENING_HOURS[day];
-    if (!hours) continue;
-    const openMin = hours[0] * 60;
+    const hours = siteContent.hours[day];
+    if (!hours || hours.closed) continue;
+    const openMin = parseTimeToMinutes(hours.open);
     if (offset === 0 && fromMinutes >= openMin) continue;
     return { day, time: openMin };
   }
@@ -133,15 +196,18 @@ function findNextOpening(fromDay, fromMinutes) {
 
 function updateOpenStatus() {
   const { day, minutes } = getZurichNow();
-  const todayHours = OPENING_HOURS[day];
+  const todayHours = siteContent.hours[day];
   const badges = document.querySelectorAll('[data-status-badge]');
 
   let isOpen = false;
   let label = '';
 
-  if (todayHours && minutes >= todayHours[0] * 60 && minutes < todayHours[1] * 60) {
+  const openMin = todayHours && !todayHours.closed ? parseTimeToMinutes(todayHours.open) : null;
+  const closeMin = todayHours && !todayHours.closed ? parseTimeToMinutes(todayHours.close) : null;
+
+  if (openMin != null && minutes >= openMin && minutes < closeMin) {
     isOpen = true;
-    label = `Jetzt geöffnet · bis ${formatTime(todayHours[1] * 60)} Uhr`;
+    label = `Jetzt geöffnet · bis ${formatTime(closeMin)} Uhr`;
   } else {
     const next = findNextOpening(day, minutes);
     if (next) {

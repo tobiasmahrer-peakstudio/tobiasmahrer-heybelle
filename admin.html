@@ -35,6 +35,7 @@
     </a>
     <div class="admin-header-actions">
       <span class="admin-save-note" id="save-note" role="status" aria-live="polite"></span>
+      <span class="admin-save-note" id="publish-note" role="status" aria-live="polite"></span>
       <button type="button" class="btn btn-ghost btn-small" id="btn-export">Exportieren</button>
       <label class="btn btn-ghost btn-small admin-import-label">
         Importieren
@@ -42,6 +43,7 @@
       </label>
       <button type="button" class="btn btn-ghost btn-small" id="btn-reset">Zurücksetzen</button>
       <a href="index.html" target="_blank" class="btn btn-ghost btn-small">Seite ansehen ↗</a>
+      <button type="button" class="btn btn-primary btn-small" id="btn-publish">Veröffentlichen ↑</button>
       <button type="button" class="btn btn-primary btn-small" id="btn-logout">Abmelden</button>
     </div>
   </header>
@@ -105,6 +107,28 @@
         </div>
         <button type="button" class="btn btn-primary btn-small" id="btn-change-password">Passwort speichern</button>
         <p class="admin-save-note" id="password-note" role="status" aria-live="polite"></p>
+      </div>
+
+      <div class="admin-card" style="margin-top: 24px;">
+        <h3 class="admin-subhead">Veröffentlichen (GitHub)</h3>
+        <p class="admin-hint">
+          "Speichern" merkt sich Änderungen nur in diesem Browser. Erst "Veröffentlichen" schreibt sie in
+          <code>data/content.json</code> auf GitHub, wovon Cloudflare Pages die Website automatisch neu auflegt –
+          danach sieht jeder Besucher die Änderung.
+        </p>
+        <p class="admin-hint">
+          Dafür brauchst du ein GitHub-Zugangstoken mit Schreibrecht auf dieses Repository
+          (<code>tobiasmahrer-peakstudio/tobiasmahrer-heybelle</code>). Erstelle eines unter
+          <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener noreferrer">github.com/settings/personal-access-tokens/new</a>
+          — als "Fine-grained token", beschränkt auf dieses Repo, mit Berechtigung "Contents: Read and write".
+          Das Token wird nur in diesem Browser gespeichert, nie im Code.
+        </p>
+        <div class="admin-form-row">
+          <label for="gh-token">GitHub-Zugangstoken</label>
+          <input type="password" id="gh-token" placeholder="ghp_… oder github_pat_…" autocomplete="off">
+        </div>
+        <button type="button" class="btn btn-primary btn-small" id="btn-save-token">Token speichern</button>
+        <p class="admin-save-note" id="token-note" role="status" aria-live="polite"></p>
       </div>
     </section>
   </main>

@@ -1,91 +1,55 @@
 // ---------- Shared content model (services, prices, opening hours) ----------
 // Used by both the public site (main.js) and the admin backoffice (admin.js).
-// Persistence is via localStorage: edits made in /admin.html are saved in the
-// browser and read back here. There is no server, so changes are visible on
-// the device/browser that saved them — not automatically to every visitor.
+//
+// Source of truth: data/content.json, committed in the repo and served as a
+// static file. Cloudflare Pages redeploys automatically whenever that file
+// changes on the connected GitHub branch, so publishing = committing.
+//
+// The admin editor keeps an in-progress DRAFT in this browser's localStorage
+// (so a refresh doesn't lose unsaved edits) and offers a "Veröffentlichen"
+// action that commits the draft straight to data/content.json on GitHub via
+// the REST API, using a personal access token the admin pastes in once —
+// that token lives only in this browser's localStorage, never in the code.
 
-const CONTENT_STORAGE_KEY = 'heybelle_content_v1';
+const CONTENT_STORAGE_KEY = 'heybelle_content_draft_v1';
+const CONTENT_URL = 'data/content.json';
 
-const DEFAULT_CONTENT = {
-  hours: {
-    1: { open: '09:00', close: '20:00', closed: false },
-    2: { open: '09:00', close: '20:00', closed: false },
-    3: { open: '09:00', close: '20:00', closed: false },
-    4: { open: '09:00', close: '20:00', closed: false },
-    5: { open: '09:00', close: '20:00', closed: false },
-    6: { open: '09:00', close: '16:00', closed: false },
-    0: { open: '09:00', close: '20:00', closed: true },
-  },
-  categories: [
-    {
-      id: 'gesicht',
-      label: 'Gesicht',
-      treatments: [
-        { id: 'g-reinigung', name: 'Klassische Gesichtsreinigung', desc: 'Ideale Basisbehandlung für reine, gepflegte Haut – sanft & regelmässig.', duration: '45 Min.', price: 109, salePrice: null, topSeller: false },
-        { id: 'g-aqua', name: 'Aqua Facial', desc: 'Porentiefe Reinigung & intensive Feuchtigkeitspflege für einen klaren Teint.', duration: '60 Min.', price: 129, salePrice: null, topSeller: false },
-        { id: 'g-mens', name: "Men's Facial", desc: 'Porentiefe Reinigung & Feuchtigkeitspflege, abgestimmt auf Männerhaut.', duration: '45 Min.', price: 129, salePrice: null, topSeller: false },
-        { id: 'g-mom', name: 'Mom-to-be Facial', desc: 'Sanfte, auf die Schwangerschaft abgestimmte Gesichtsreinigung.', duration: '60 Min.', price: 129, salePrice: null, topSeller: false },
-        { id: 'g-micro', name: 'Microneedling', desc: 'Regt die Kollagenproduktion an – für feine Linien, Narben & unebenen Teint.', duration: '60 Min.', price: 139, salePrice: null, topSeller: false },
-        { id: 'g-micro-dna', name: 'Microneedling mit Salmon DNA', desc: 'Wie Microneedling, plus Lachs-DNA-Serum für fahle, müde Haut.', duration: '60 Min.', price: 169, salePrice: null, topSeller: false },
-        { id: 'g-kombi', name: 'Aqua Facial & Microneedling', desc: 'Tiefenreinigung plus Kollagen-Boost – für regenerierte, straffe Haut.', duration: '75 Min.', price: 219, salePrice: null, topSeller: false, tag: 'Kombi' },
-        { id: 'g-bio', name: 'Bio Needling', desc: 'Entzündungshemmend mit Bio-Algen-Seren – auch bei aktiver Akne.', duration: '60 Min.', price: 129, salePrice: null, topSeller: false },
-        { id: 'g-peeling', name: 'Chemisches Peeling', desc: 'Fruchtsäuren/Enzyme gegen unebenen Teint, feine Linien & Pigmentflecken.', duration: '45 Min.', price: 129, salePrice: null, topSeller: false },
-        { id: 'g-hals', name: 'Zusatz: Hals & Dekolleté', desc: 'Intensive Pflege für die oft vernachlässigte Hals- und Dekolletépartie.', duration: 'Zusatzbehandlung', price: 49, salePrice: null, topSeller: false },
-      ],
-    },
-    {
-      id: 'brows',
-      label: 'Augenbrauen & Wimpern',
-      treatments: [
-        { id: 'b-brow', name: 'Browlifting', desc: 'Fadenzupftechnik, Farbauffrischung & Mapping für die ideale Brauenform.', duration: '60 Min.', price: 89, salePrice: null, topSeller: false },
-        { id: 'b-lash', name: 'Lashlifting', desc: 'Wimpernschwung plus Wimpernfarbe für einen ausdrucksstarken Blick.', duration: '60 Min.', price: 79, salePrice: null, topSeller: false },
-        { id: 'b-kombi', name: 'Browlifting + Lashlifting', desc: 'Das Kombi-Angebot für den perfekten Augen-Aufschlag – ganz ohne Make-up.', duration: '90 Min.', price: 139, salePrice: null, topSeller: true, tag: 'Beliebt' },
-      ],
-    },
-    {
-      id: 'headspa',
-      label: 'Japanese Head Spa',
-      treatments: [
-        { id: 'h-classic', name: 'Head Spa Classic', desc: 'Traditionelle japanische Kopfhautmassage für Entspannung & Durchblutung.', duration: '60 Min.', price: 119, salePrice: null, topSeller: false },
-        { id: 'h-deluxe', name: 'Head Spa Deluxe', desc: 'Kopfhautmassage plus Gesichtspeeling & beruhigende Gesichtsmaske.', duration: '75 Min.', price: 169, salePrice: null, topSeller: false },
-        { id: 'h-hammam', name: 'Head Spa Hammam', desc: 'Kopfhautmassage, Rückenpeeling & beruhigende Maske – das komplette Ritual.', duration: '90 Min.', price: 209, salePrice: null, topSeller: false, tag: 'Premium' },
-        { id: 'h-dryblow', name: 'Zusätzlich Dryblow', desc: 'Wir föhnen deine Haare trocken, damit du rundum entspannt gehen kannst.', duration: '10 Min.', price: 39, salePrice: null, topSeller: false },
-      ],
-    },
-    {
-      id: 'laser',
-      label: 'Haarentfernung',
-      treatments: [
-        { id: 'l-frau', name: 'Ganzkörper – Damen', desc: 'Diodenlaser-Haarentfernung für den ganzen Körper.', duration: 'pro Termin', price: 149, salePrice: null, topSeller: false },
-        { id: 'l-mann', name: 'Ganzkörper – Herren', desc: 'Diodenlaser-Haarentfernung für den ganzen Körper.', duration: 'pro Termin', price: 199, salePrice: null, topSeller: false },
-      ],
-      zones: [
-        { id: 'z-intim', name: 'Intimzone', price: 69 },
-        { id: 'z-gesicht', name: 'Gesicht', price: 49 },
-        { id: 'z-oberlippe', name: 'Oberlippe', price: 29 },
-        { id: 'z-pofalte', name: 'Po-Falte', price: 49 },
-        { id: 'z-achseln', name: 'Achseln', price: 49 },
-        { id: 'z-arme', name: 'Arme', price: 89 },
-        { id: 'z-beine', name: 'Beine komplett', price: 89 },
-        { id: 'z-brust', name: 'Brust & Bauch', price: 119 },
-        { id: 'z-ruecken', name: 'Rücken & Schulter', price: 119 },
-        { id: 'z-bart', name: 'Bartkontur', price: 39 },
-        { id: 'z-hals', name: 'Hals', price: 39 },
-      ],
-    },
-  ],
-};
+const GITHUB_REPO_OWNER = 'tobiasmahrer-peakstudio';
+const GITHUB_REPO_NAME = 'tobiasmahrer-heybelle';
+const GITHUB_BRANCH = 'main';
+const GITHUB_FILE_PATH = 'data/content.json';
+const GH_TOKEN_KEY = 'heybelle_gh_token';
 
-function loadContent() {
+async function fetchPublishedContent() {
+  try {
+    const res = await fetch(CONTENT_URL, { cache: 'no-store' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    if (!data || !data.categories || !data.hours) throw new Error('invalid shape');
+    return data;
+  } catch (err) {
+    console.error('Konnte data/content.json nicht laden:', err);
+    return { hours: {}, categories: [] };
+  }
+}
+
+// Public site: always shows the published file, ignoring any admin draft.
+async function loadContent() {
+  return fetchPublishedContent();
+}
+
+// Admin editor: prefer an unsaved local draft, else start from the published file.
+async function loadContentForAdmin() {
   try {
     const raw = localStorage.getItem(CONTENT_STORAGE_KEY);
-    if (!raw) return structuredClone(DEFAULT_CONTENT);
-    const parsed = JSON.parse(raw);
-    if (!parsed || !parsed.categories || !parsed.hours) return structuredClone(DEFAULT_CONTENT);
-    return parsed;
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && parsed.categories && parsed.hours) return parsed;
+    }
   } catch {
-    return structuredClone(DEFAULT_CONTENT);
+    // fall through to published content
   }
+  return fetchPublishedContent();
 }
 
 function saveContent(content) {
@@ -98,4 +62,60 @@ function resetContent() {
 
 function makeId(prefix) {
   return `${prefix}-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+}
+
+// ---------- GitHub publish ----------
+function getGithubToken() {
+  return localStorage.getItem(GH_TOKEN_KEY) || '';
+}
+
+function setGithubToken(token) {
+  if (token) localStorage.setItem(GH_TOKEN_KEY, token);
+  else localStorage.removeItem(GH_TOKEN_KEY);
+}
+
+function base64EncodeUtf8(str) {
+  return btoa(unescape(encodeURIComponent(str)));
+}
+
+async function publishContentToGithub(content) {
+  const token = getGithubToken();
+  if (!token) {
+    throw new Error('Kein GitHub-Zugangstoken hinterlegt. Trage es unter "Einstellungen" ein.');
+  }
+
+  const apiUrl = `https://api.github.com/repos/${GITHUB_REPO_OWNER}/${GITHUB_REPO_NAME}/contents/${GITHUB_FILE_PATH}`;
+  const headers = {
+    Authorization: `Bearer ${token}`,
+    Accept: 'application/vnd.github+json',
+  };
+
+  // 1. Get the current file's SHA (required by GitHub to update a file)
+  const getRes = await fetch(`${apiUrl}?ref=${GITHUB_BRANCH}`, { headers });
+  if (!getRes.ok) {
+    if (getRes.status === 401 || getRes.status === 403) {
+      throw new Error('GitHub hat das Token abgelehnt (ungültig oder keine Schreibrechte).');
+    }
+    throw new Error(`Konnte aktuelle Datei nicht lesen (HTTP ${getRes.status}).`);
+  }
+  const current = await getRes.json();
+
+  // 2. Commit the updated content on top of that SHA
+  const putRes = await fetch(apiUrl, {
+    method: 'PUT',
+    headers: { ...headers, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      message: 'Backoffice: Inhalte aktualisiert',
+      content: base64EncodeUtf8(JSON.stringify(content, null, 2)),
+      sha: current.sha,
+      branch: GITHUB_BRANCH,
+    }),
+  });
+
+  if (!putRes.ok) {
+    const body = await putRes.json().catch(() => ({}));
+    throw new Error(body.message || `Veröffentlichen fehlgeschlagen (HTTP ${putRes.status}).`);
+  }
+
+  return putRes.json();
 }

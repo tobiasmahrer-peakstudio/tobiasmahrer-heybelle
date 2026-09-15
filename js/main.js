@@ -83,7 +83,7 @@ contactForm.addEventListener('submit', (e) => {
 document.getElementById('year').textContent = new Date().getFullYear();
 
 // ---------- Content-driven rendering (services, prices, hours) ----------
-const siteContent = loadContent();
+let siteContent = { hours: {}, categories: [] };
 
 function escapeHtml(str) {
   const div = document.createElement('div');
@@ -134,8 +134,6 @@ function renderTreatments() {
   });
 }
 
-renderTreatments();
-
 // ---------- Live opening status ----------
 const DAY_NAMES = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
 
@@ -149,8 +147,6 @@ function renderHoursTable() {
     return `<tr data-day="${day}"><th>${DAY_NAMES[day]}</th><td>${label}</td></tr>`;
   }).join('');
 }
-
-renderHoursTable();
 
 function getZurichNow() {
   const parts = new Intl.DateTimeFormat('en-US', {
@@ -230,8 +226,13 @@ function updateOpenStatus() {
   });
 }
 
-updateOpenStatus();
-setInterval(updateOpenStatus, 60000);
+(async () => {
+  siteContent = await loadContent();
+  renderTreatments();
+  renderHoursTable();
+  updateOpenStatus();
+  setInterval(updateOpenStatus, 60000);
+})();
 
 // ---------- Reviews carousel ----------
 (() => {

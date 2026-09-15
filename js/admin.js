@@ -56,9 +56,12 @@ document.getElementById('btn-logout').addEventListener('click', () => {
 });
 
 // ---------- Dashboard ----------
-function initDashboard() {
-  content = loadContent();
+async function initDashboard() {
+  content = await loadContentForAdmin();
   renderAll();
+
+  const tokenField = document.getElementById('gh-token');
+  if (tokenField) tokenField.value = getGithubToken();
 
   if (dashboardInitialized) return;
   dashboardInitialized = true;
@@ -307,10 +310,10 @@ function wireStaticControls() {
     e.target.value = '';
   });
 
-  document.getElementById('btn-reset').addEventListener('click', () => {
-    if (!confirm('Wirklich alle Änderungen verwerfen und auf die Standardwerte zurücksetzen?')) return;
+  document.getElementById('btn-reset').addEventListener('click', async () => {
+    if (!confirm('Wirklich alle unveröffentlichten Änderungen verwerfen und zum zuletzt veröffentlichten Stand zurückkehren?')) return;
     resetContent();
-    content = loadContent();
+    content = await loadContentForAdmin();
     renderAll();
     flashSaved(document.getElementById('save-note'));
   });
@@ -329,6 +332,43 @@ function wireStaticControls() {
     note.classList.add('is-visible');
     clearTimeout(note._timer);
     note._timer = setTimeout(() => note.classList.remove('is-visible'), 2200);
+  });
+
+  document.getElementById('btn-save-token').addEventListener('click', () => {
+    const token = document.getElementById('gh-token').value.trim();
+    setGithubToken(token);
+    const note = document.getElementById('token-note');
+    note.textContent = token ? 'Token gespeichert ✓' : 'Token entfernt';
+    note.classList.add('is-visible');
+    clearTimeout(note._timer);
+    note._timer = setTimeout(() => note.classList.remove('is-visible'), 2200);
+  });
+
+  document.getElementById('btn-publish').addEventListener('click', async () => {
+    const btn = document.getElementById('btn-publish');
+    const note = document.getElementById('publish-note');
+
+    if (!getGithubToken()) {
+      alert('Bitte zuerst unter "Einstellungen" ein GitHub-Zugangstoken hinterlegen.');
+      return;
+    }
+    if (!confirm('Änderungen jetzt live für alle Website-Besucher veröffentlichen?')) return;
+
+    btn.disabled = true;
+    btn.textContent = 'Veröffentliche …';
+    try {
+      await publishContentToGithub(content);
+      note.textContent = 'Veröffentlicht ✓ (live in ca. 1 Min.)';
+      note.style.color = '';
+    } catch (err) {
+      note.textContent = `Fehler: ${err.message}`;
+      note.style.color = '#c0392b';
+    }
+    note.classList.add('is-visible');
+    clearTimeout(note._timer);
+    note._timer = setTimeout(() => note.classList.remove('is-visible'), 5000);
+    btn.disabled = false;
+    btn.textContent = 'Veröffentlichen ↑';
   });
 }
 

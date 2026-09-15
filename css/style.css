@@ -989,3 +989,25 @@ em { font-style: italic; color: var(--color-accent); }
   .contact-form { padding: 26px; }
   .header-actions .btn-small { display: none; }
 }
+
+/* ---------- Legal pages (Impressum / Datenschutz) ---------- */
+.legal-content { max-width: 720px; }
+.legal-content .section-title { margin-bottom: 8px; }
+.legal-updated {
+  color: var(--color-text-soft);
+  font-size: 0.85rem;
+  margin: 0 0 40px;
+}
+.legal-content h2 {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  margin: 36px 0 12px;
+}
+.legal-content h2:first-of-type { margin-top: 0; }
+.legal-content p {
+  color: var(--color-text-soft);
+  line-height: 1.7;
+  margin: 0 0 16px;
+}
+.legal-content a { color: var(--color-primary-dark); text-decoration: underline; }
+.legal-content strong { color: var(--color-text); }

@@ -19,7 +19,7 @@
         { "id": "g-mom", "name": "Mom-to-be Facial", "desc": "Sanfte, auf die Schwangerschaft abgestimmte Gesichtsreinigung.", "duration": "60 Min.", "price": 129, "salePrice": null, "topSeller": false },
         { "id": "g-micro", "name": "Microneedling", "desc": "Regt die Kollagenproduktion an – für feine Linien, Narben & unebenen Teint.", "duration": "60 Min.", "price": 139, "salePrice": null, "topSeller": false },
         { "id": "g-micro-dna", "name": "Microneedling mit Salmon DNA", "desc": "Wie Microneedling, plus Lachs-DNA-Serum für fahle, müde Haut.", "duration": "60 Min.", "price": 169, "salePrice": null, "topSeller": false },
-        { "id": "g-kombi", "name": "Aqua Facial & Microneedling", "desc": "Tiefenreinigung plus Kollagen-Boost – für regenerierte, straffe Haut.", "duration": "75 Min.", "price": 219, "salePrice": null, "topSeller": false, "tag": "Kombi" },
+        { "id": "g-kombi", "name": "Aqua Facial & Microneedling", "desc": "Tiefenreinigung plus Kollagen-Boost – für regenerierte, straffe Haut.", "duration": "75 Min.", "price": 219, "salePrice": null, "topSeller": true },
         { "id": "g-bio", "name": "Bio Needling", "desc": "Entzündungshemmend mit Bio-Algen-Seren – auch bei aktiver Akne.", "duration": "60 Min.", "price": 129, "salePrice": null, "topSeller": false },
         { "id": "g-peeling", "name": "Chemisches Peeling", "desc": "Fruchtsäuren/Enzyme gegen unebenen Teint, feine Linien & Pigmentflecken.", "duration": "45 Min.", "price": 129, "salePrice": null, "topSeller": false },
         { "id": "g-hals", "name": "Zusatz: Hals & Dekolleté", "desc": "Intensive Pflege für die oft vernachlässigte Hals- und Dekolletépartie.", "duration": "Zusatzbehandlung", "price": 49, "salePrice": null, "topSeller": false }

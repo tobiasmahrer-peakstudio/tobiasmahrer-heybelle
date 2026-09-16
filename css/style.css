@@ -305,12 +305,8 @@ em { font-style: italic; color: var(--color-accent); }
   margin: 0 auto;
   padding-top: 40px;
 }
-.hero h1 {
-  font-size: clamp(2.4rem, 4.6vw, 3.4rem);
-  margin-bottom: 10px;
-}
 .hero-text {
-  font-size: 1rem;
+  font-size: 1.2rem;
   color: var(--color-text-soft);
   margin: 0 auto 24px;
 }

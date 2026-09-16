@@ -552,6 +552,7 @@ em { font-style: italic; color: var(--color-accent); }
   margin: 36px auto 0;
   max-width: 560px;
 }
+.tab-note.muted { opacity: 0.75; }
 .tab-footnote {
   text-align: center;
   color: var(--color-text-soft);

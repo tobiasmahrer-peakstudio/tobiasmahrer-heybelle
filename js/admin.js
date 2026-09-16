@@ -253,7 +253,7 @@ function addZone() {
 // ---------- Render everything ----------
 function renderAll() {
   renderHoursEditor();
-  ['gesicht', 'brows', 'headspa', 'laser'].forEach(renderTreatmentsEditor);
+  ['gesicht', 'brows', 'headspa', 'laser', 'dental'].forEach(renderTreatmentsEditor);
   renderZonesEditor();
 }
 

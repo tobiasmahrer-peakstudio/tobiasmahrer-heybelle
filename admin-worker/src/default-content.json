@@ -64,6 +64,13 @@
         { "id": "z-bart", "name": "Bartkontur", "price": 39 },
         { "id": "z-hals", "name": "Hals", "price": 39 }
       ]
+    },
+    {
+      "id": "dental",
+      "label": "Dental",
+      "treatments": [
+        { "id": "d-bleaching", "name": "Kosmetisches Zahnbleaching", "desc": "Sanftes, kosmetisches Aufhellen für ein strahlendes Lächeln.", "duration": "60 Min.", "price": 119, "salePrice": null, "topSeller": false }
+      ]
     }
   ]
 }

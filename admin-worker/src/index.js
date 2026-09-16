@@ -25,6 +25,17 @@ function isValidContent(data) {
   return !!data && typeof data === 'object' && data.hours && Array.isArray(data.categories);
 }
 
+const CONTACT_TO_EMAIL = 'info@heybelle.ch';
+const CONTACT_FROM_EMAIL = 'heybelle Website <onboarding@resend.dev>';
+
+function isValidContact(data) {
+  return !!data
+    && typeof data.name === 'string' && data.name.trim()
+    && typeof data.email === 'string' && data.email.trim()
+    && typeof data.phone === 'string' && data.phone.trim()
+    && typeof data.message === 'string' && data.message.trim();
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -49,6 +60,39 @@ export default {
       }
       if (!isValidContent(body)) return err('Invalid content shape');
       await env.HEYBELLE_CONTENT.put('content', JSON.stringify(body));
+      return json({ ok: true });
+    }
+
+    if (path === '/api/contact' && request.method === 'POST') {
+      let body;
+      try {
+        body = await request.json();
+      } catch {
+        return err('Invalid JSON');
+      }
+      if (!isValidContact(body)) return err('Bitte alle Pflichtfelder ausfüllen.');
+
+      const { name, email, phone, service, message } = body;
+      const text = `Neue Terminanfrage über die Website\n\nName: ${name}\nE-Mail: ${email}\nTelefon: ${phone}\nInteresse: ${service || '-'}\n\nNachricht:\n${message}`;
+
+      const resendRes = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${env.RESEND_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: CONTACT_FROM_EMAIL,
+          to: CONTACT_TO_EMAIL,
+          reply_to: email,
+          subject: `Terminanfrage: ${service || 'Allgemein'}`,
+          text,
+        }),
+      });
+
+      if (!resendRes.ok) {
+        return err('E-Mail-Versand fehlgeschlagen.', 502);
+      }
       return json({ ok: true });
     }
 

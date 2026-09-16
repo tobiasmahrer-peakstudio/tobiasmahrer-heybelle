@@ -60,7 +60,7 @@ revealEls.forEach(el => revealObserver.observe(el));
 const contactForm = document.getElementById('contact-form');
 const formNote = document.getElementById('form-note');
 
-contactForm.addEventListener('submit', (e) => {
+contactForm.addEventListener('submit', async (e) => {
   e.preventDefault();
 
   const name = contactForm.name.value.trim();
@@ -69,14 +69,27 @@ contactForm.addEventListener('submit', (e) => {
   const message = contactForm.message.value.trim();
   const phone = contactForm.phone.value.trim();
 
-  const subject = encodeURIComponent(`Terminanfrage: ${service}`);
-  const body = encodeURIComponent(
-    `Name: ${name}\nE-Mail: ${email || '-'}\nTelefon: ${phone}\nInteresse: ${service}\n\nNachricht:\n${message || '-'}`
-  );
+  const submitBtn = contactForm.querySelector('button[type=submit]');
+  submitBtn.disabled = true;
+  formNote.style.color = '';
+  formNote.textContent = 'Wird gesendet …';
 
-  window.location.href = `mailto:info@heybelle.ch?subject=${subject}&body=${body}`;
+  try {
+    const res = await fetch(`${API_BASE}/api/contact`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, phone, service, message }),
+    });
+    if (!res.ok) throw new Error('Versand fehlgeschlagen');
 
-  formNote.textContent = 'Dein E-Mail-Programm öffnet sich gleich – vielen Dank für deine Anfrage!';
+    formNote.textContent = 'Danke für deine Anfrage! Wir melden uns so schnell wie möglich bei dir.';
+    contactForm.reset();
+  } catch {
+    formNote.style.color = '#c0392b';
+    formNote.textContent = 'Da ist etwas schiefgelaufen. Schreib uns gerne direkt per WhatsApp oder Telefon.';
+  }
+
+  submitBtn.disabled = false;
 });
 
 // ---------- Footer year ----------

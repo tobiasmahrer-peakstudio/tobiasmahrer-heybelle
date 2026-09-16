@@ -951,7 +951,7 @@ em { font-style: italic; color: var(--color-accent); }
     border-bottom: 1px solid var(--color-border);
   }
 
-  .usp-grid { grid-template-columns: repeat(2, 1fr); }
+  .usp-bar { display: none; }
   .tabs {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -978,7 +978,6 @@ em { font-style: italic; color: var(--color-accent); }
 }
 
 @media (max-width: 480px) {
-  .usp-grid { grid-template-columns: 1fr; }
   .hero { padding: 0 0 48px; }
   .hero-logo-band { padding: 40px 20px; }
   .contact-form { padding: 26px; }

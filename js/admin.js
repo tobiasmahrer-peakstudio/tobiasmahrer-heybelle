@@ -162,7 +162,7 @@ function renderTreatmentsEditor(catId) {
       <div class="treatment-editor-footer">
         <label class="admin-checkbox">
           <input type="checkbox" data-field="topSeller" ${t.topSeller ? 'checked' : ''}>
-          Top-Seller
+          Meistgebucht
         </label>
         <button type="button" class="admin-delete-btn" data-delete-treatment="${t.id}" aria-label="Behandlung löschen">Löschen</button>
       </div>

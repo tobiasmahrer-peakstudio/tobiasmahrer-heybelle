@@ -809,6 +809,17 @@ em { font-style: italic; color: var(--color-accent); }
   gap: 64px;
   align-items: start;
 }
+.contact-note {
+  background: var(--color-bg-alt);
+  border-left: 3px solid var(--color-accent);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  padding: 14px 18px;
+  margin: 0 0 28px;
+  font-size: 0.92rem;
+  color: var(--color-text-soft);
+}
+.contact-note a { color: var(--color-primary-dark); font-weight: 600; text-decoration: underline; text-underline-offset: 2px; }
+
 .contact-list {
   display: flex;
   flex-direction: column;

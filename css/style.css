@@ -509,7 +509,7 @@ em { font-style: italic; color: var(--color-accent); }
 .price-card.featured .price-row .price-old { color: rgba(255,255,255,0.7); }
 
 .price-card.featured {
-  background: linear-gradient(160deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  background: linear-gradient(160deg, #5c4a3a 0%, #40332a 100%);
   color: #fff;
   border-color: transparent;
 }
@@ -529,7 +529,7 @@ em { font-style: italic; color: var(--color-accent); }
 }
 .badge {
   background: #fff;
-  color: var(--color-accent);
+  color: #b3392b;
   font-size: 0.72rem;
   font-weight: 800;
   letter-spacing: 0.05em;
@@ -540,7 +540,7 @@ em { font-style: italic; color: var(--color-accent); }
   white-space: nowrap;
 }
 .badge.badge-sale { background: #c0392b; color: #fff; }
-.badge.badge-topseller { background: var(--color-accent); color: #fff; }
+.badge.badge-topseller { background: #fff; color: #b3392b; }
 
 .tab-note {
   text-align: center;

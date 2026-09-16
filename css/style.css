@@ -85,6 +85,7 @@ h1, h2, h3 {
 }
 
 em { font-style: italic; color: var(--color-accent); }
+.nowrap { white-space: nowrap; }
 
 .eyebrow {
   display: inline-block;

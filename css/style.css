@@ -268,11 +268,13 @@ em { font-style: italic; color: var(--color-accent); }
   margin-right: calc(50% - 50vw);
   background: #baa99f;
   display: flex;
+  align-items: center;
   justify-content: center;
+  min-height: 72vh;
   padding: 56px 24px;
 }
 .hero-logo {
-  width: min(420px, 80vw);
+  width: min(560px, 78vw);
   height: auto;
   display: block;
 }

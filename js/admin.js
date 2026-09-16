@@ -1,23 +1,8 @@
 // ---------- Backoffice: password gate + content editor ----------
-// NOTE ON SECURITY: this is a client-side password check on a static site.
-// It keeps casual visitors out of the editor, but anyone who reads the page
-// source can bypass it — there is no server verifying the password. Treat
-// it as a soft lock, not real access control. Content is saved to this
-// browser's localStorage, so edits are visible on this device only until
-// exported/re-published elsewhere.
-
-const DEFAULT_PASSWORD = 'heybelle2026';
-const PW_HASH_KEY = 'heybelle_admin_pw_hash';
-const SESSION_KEY = 'heybelle_admin_session';
-
-async function sha256(text) {
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
-  return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
-}
-
-async function getStoredHash() {
-  return localStorage.getItem(PW_HASH_KEY) || sha256(DEFAULT_PASSWORD);
-}
+// The password is verified server-side by the heybelle-admin Worker (see
+// js/data.js). "Speichern" writes straight to the shared Worker/KV store —
+// live for every visitor within moments, from any device, as soon as
+// someone who knows the password saves.
 
 const loginScreen = document.getElementById('admin-login');
 const dashboard = document.getElementById('admin-dashboard');
@@ -33,14 +18,23 @@ function showDashboard() {
   initDashboard();
 }
 
+function backToLogin() {
+  setAdminPassword('');
+  dashboard.hidden = true;
+  loginScreen.hidden = false;
+  document.getElementById('login-password').value = '';
+}
+
 loginForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   const entered = document.getElementById('login-password').value;
-  const enteredHash = await sha256(entered);
-  const storedHash = await getStoredHash();
+  const submitBtn = loginForm.querySelector('button[type=submit]');
+  submitBtn.disabled = true;
+  const ok = await checkAdminLogin(entered).catch(() => false);
+  submitBtn.disabled = false;
 
-  if (enteredHash === storedHash) {
-    sessionStorage.setItem(SESSION_KEY, '1');
+  if (ok) {
+    setAdminPassword(entered);
     loginError.hidden = true;
     showDashboard();
   } else {
@@ -48,37 +42,45 @@ loginForm.addEventListener('submit', async (e) => {
   }
 });
 
-document.getElementById('btn-logout').addEventListener('click', () => {
-  sessionStorage.removeItem(SESSION_KEY);
-  dashboard.hidden = true;
-  loginScreen.hidden = false;
-  document.getElementById('login-password').value = '';
-});
+document.getElementById('btn-logout').addEventListener('click', backToLogin);
 
 // ---------- Dashboard ----------
 async function initDashboard() {
-  content = await loadContentForAdmin();
+  content = await loadContent();
   renderAll();
-
-  const tokenField = document.getElementById('gh-token');
-  if (tokenField) tokenField.value = getGithubToken();
 
   if (dashboardInitialized) return;
   dashboardInitialized = true;
   wireStaticControls();
 }
 
-function flashSaved(el) {
+function showNote(el, text, isError) {
   if (!el) return;
-  el.textContent = 'Gespeichert ✓';
+  el.textContent = text;
+  el.style.color = isError ? '#c0392b' : '';
   el.classList.add('is-visible');
   clearTimeout(el._timer);
-  el._timer = setTimeout(() => el.classList.remove('is-visible'), 1800);
+  el._timer = setTimeout(() => el.classList.remove('is-visible'), isError ? 5000 : 1800);
 }
 
-function persist() {
-  saveContent(content);
-  flashSaved(document.getElementById('save-note'));
+async function saveNow() {
+  const btn = document.getElementById('btn-save');
+  const note = document.getElementById('save-note');
+  btn.disabled = true;
+  btn.textContent = 'Speichere …';
+  try {
+    await saveContentRemote(content);
+    showNote(note, 'Gespeichert ✓ (live für alle)', false);
+  } catch (err) {
+    if (err.message.includes('Nicht angemeldet')) {
+      showNote(note, 'Sitzung abgelaufen — bitte neu anmelden.', true);
+      setTimeout(backToLogin, 1500);
+    } else {
+      showNote(note, `Fehler: ${err.message}`, true);
+    }
+  }
+  btn.disabled = false;
+  btn.textContent = 'Speichern ✓';
 }
 
 function escapeAttr(str) {
@@ -118,7 +120,6 @@ function renderHoursEditor() {
         } else {
           content.hours[day][field] = input.value;
         }
-        persist();
       });
     });
   });
@@ -185,14 +186,12 @@ function renderTreatmentsEditor(catId) {
         } else {
           treatment[field] = input.value;
         }
-        persist();
       });
     });
 
     card.querySelector('[data-delete-treatment]').addEventListener('click', () => {
       if (!confirm(`"${treatment.name}" wirklich löschen?`)) return;
       cat.treatments = cat.treatments.filter(t => t.id !== id);
-      persist();
       renderTreatmentsEditor(catId);
     });
   });
@@ -209,7 +208,6 @@ function addTreatment(catId) {
     salePrice: null,
     topSeller: false,
   });
-  persist();
   renderTreatmentsEditor(catId);
 }
 
@@ -235,14 +233,12 @@ function renderZonesEditor() {
       input.addEventListener('input', () => {
         const field = input.dataset.zfield;
         zone[field] = field === 'price' ? Number(input.value || 0) : input.value;
-        persist();
       });
     });
 
     row.querySelector('[data-delete-zone]').addEventListener('click', () => {
       if (!confirm(`Zone "${zone.name}" wirklich löschen?`)) return;
       cat.zones = cat.zones.filter(z => z.id !== id);
-      persist();
       renderZonesEditor();
     });
   });
@@ -251,7 +247,6 @@ function renderZonesEditor() {
 function addZone() {
   const cat = findCategory('laser');
   cat.zones.push({ id: makeId('z'), name: 'Neue Zone', price: 0 });
-  persist();
   renderZonesEditor();
 }
 
@@ -262,7 +257,7 @@ function renderAll() {
   renderZonesEditor();
 }
 
-// ---------- Static controls (tabs, export/import/reset, password) ----------
+// ---------- Static controls (tabs, save/export/import/reset) ----------
 function wireStaticControls() {
   document.querySelectorAll('.admin-tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -278,6 +273,8 @@ function wireStaticControls() {
   document.querySelectorAll('[data-add-zone]').forEach(btn => {
     btn.addEventListener('click', addZone);
   });
+
+  document.getElementById('btn-save').addEventListener('click', saveNow);
 
   document.getElementById('btn-export').addEventListener('click', () => {
     const blob = new Blob([JSON.stringify(content, null, 2)], { type: 'application/json' });
@@ -300,8 +297,8 @@ function wireStaticControls() {
         const parsed = JSON.parse(reader.result);
         if (!parsed.categories || !parsed.hours) throw new Error('invalid');
         content = parsed;
-        persist();
         renderAll();
+        showNote(document.getElementById('save-note'), 'Importiert — nicht vergessen: "Speichern" klicken.', false);
       } catch {
         alert('Diese Datei sieht nicht wie eine gültige heybelle-Inhalte-Datei aus.');
       }
@@ -311,68 +308,14 @@ function wireStaticControls() {
   });
 
   document.getElementById('btn-reset').addEventListener('click', async () => {
-    if (!confirm('Wirklich alle unveröffentlichten Änderungen verwerfen und zum zuletzt veröffentlichten Stand zurückkehren?')) return;
-    resetContent();
-    content = await loadContentForAdmin();
+    if (!confirm('Wirklich alle unveröffentlichten Änderungen verwerfen und den zuletzt gespeicherten Stand neu laden?')) return;
+    content = await loadContent();
     renderAll();
-    flashSaved(document.getElementById('save-note'));
-  });
-
-  document.getElementById('btn-change-password').addEventListener('click', async () => {
-    const newPw = document.getElementById('new-password').value.trim();
-    const note = document.getElementById('password-note');
-    if (newPw.length < 4) {
-      note.textContent = 'Bitte mindestens 4 Zeichen verwenden.';
-      note.classList.add('is-visible');
-      return;
-    }
-    localStorage.setItem(PW_HASH_KEY, await sha256(newPw));
-    document.getElementById('new-password').value = '';
-    note.textContent = 'Neues Passwort gespeichert ✓';
-    note.classList.add('is-visible');
-    clearTimeout(note._timer);
-    note._timer = setTimeout(() => note.classList.remove('is-visible'), 2200);
-  });
-
-  document.getElementById('btn-save-token').addEventListener('click', () => {
-    const token = document.getElementById('gh-token').value.trim();
-    setGithubToken(token);
-    const note = document.getElementById('token-note');
-    note.textContent = token ? 'Token gespeichert ✓' : 'Token entfernt';
-    note.classList.add('is-visible');
-    clearTimeout(note._timer);
-    note._timer = setTimeout(() => note.classList.remove('is-visible'), 2200);
-  });
-
-  document.getElementById('btn-publish').addEventListener('click', async () => {
-    const btn = document.getElementById('btn-publish');
-    const note = document.getElementById('publish-note');
-
-    if (!getGithubToken()) {
-      alert('Bitte zuerst unter "Einstellungen" ein GitHub-Zugangstoken hinterlegen.');
-      return;
-    }
-    if (!confirm('Änderungen jetzt live für alle Website-Besucher veröffentlichen?')) return;
-
-    btn.disabled = true;
-    btn.textContent = 'Veröffentliche …';
-    try {
-      await publishContentToGithub(content);
-      note.textContent = 'Veröffentlicht ✓ (live in ca. 1 Min.)';
-      note.style.color = '';
-    } catch (err) {
-      note.textContent = `Fehler: ${err.message}`;
-      note.style.color = '#c0392b';
-    }
-    note.classList.add('is-visible');
-    clearTimeout(note._timer);
-    note._timer = setTimeout(() => note.classList.remove('is-visible'), 5000);
-    btn.disabled = false;
-    btn.textContent = 'Veröffentlichen ↑';
+    showNote(document.getElementById('save-note'), 'Zurückgesetzt', false);
   });
 }
 
-// ---------- Auto-login if a session is already active ----------
-if (sessionStorage.getItem(SESSION_KEY) === '1') {
+// ---------- Auto-login if a password is already in this tab's session ----------
+if (getAdminPassword()) {
   showDashboard();
 }

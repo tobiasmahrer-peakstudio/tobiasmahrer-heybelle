@@ -1,0 +1,14 @@
+{
+  "name": "heybelle-admin-worker",
+  "version": "1.0.0",
+  "description": "Backoffice API for heybelle.ch — stores services/prices/hours in KV.",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "wrangler": "^4.125.0"
+  }
+}

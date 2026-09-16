@@ -2,3 +2,5 @@
 node_modules/
 .claude/
 .wrangler/
+admin-worker/node_modules/
+admin-worker/.wrangler/

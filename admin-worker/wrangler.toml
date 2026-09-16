@@ -1,0 +1,7 @@
+name = "heybelle-admin"
+main = "src/index.js"
+compatibility_date = "2026-01-01"
+
+[[kv_namespaces]]
+binding = "HEYBELLE_CONTENT"
+id = "dc063ceb520340f685c88fcde50e24b2"

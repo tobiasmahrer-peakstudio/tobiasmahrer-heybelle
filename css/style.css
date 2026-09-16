@@ -316,15 +316,13 @@ em { font-style: italic; color: var(--color-accent); }
 
 .hero-meta {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 10px;
+  gap: 12px;
   font-size: 0.9rem;
   color: var(--color-text-soft);
 }
 .hero-meta svg { color: var(--color-primary); flex-shrink: 0; }
-.hero-meta-sep { color: var(--color-border); }
 .hero-meta-location { display: inline-flex; align-items: center; gap: 10px; }
 
 /* ---------- Status Badge (open/closed) ---------- */

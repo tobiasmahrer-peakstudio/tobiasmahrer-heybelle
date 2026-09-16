@@ -96,7 +96,7 @@ function renderPriceCard(t) {
   const featured = t.topSeller || t.tag || hasSale;
 
   const badges = [];
-  if (t.topSeller) badges.push({ label: 'Bestseller', cls: 'badge-topseller' });
+  if (t.topSeller) badges.push({ label: 'Meistgebucht', cls: 'badge-topseller' });
   if (hasSale) badges.push({ label: 'Aktion', cls: 'badge-sale' });
   if (t.tag && !t.topSeller) badges.push({ label: t.tag, cls: '' });
 

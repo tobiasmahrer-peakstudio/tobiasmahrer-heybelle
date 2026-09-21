@@ -1028,3 +1028,29 @@ em { font-style: italic; color: var(--color-accent); }
 }
 .legal-content a { color: var(--color-primary-dark); text-decoration: underline; }
 .legal-content strong { color: var(--color-text); }
+
+/* ---------- Peak Studio footer badge ---------- */
+.peak-badge {
+  text-align: center;
+  padding: 14px 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+}
+.peak-badge a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  letter-spacing: 0.03em;
+  text-decoration: none;
+  opacity: 0.55;
+  transition: opacity 0.2s ease;
+}
+.peak-badge a:hover { opacity: 1; }
+.peak-badge--light a { color: #111111; }
+.peak-badge--dark a { color: #ffffff; }
+.peak-badge__logo {
+  height: 14px;
+  width: auto;
+  display: inline-block;
+  vertical-align: middle;
+}

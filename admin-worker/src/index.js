@@ -26,7 +26,7 @@ function isValidContent(data) {
 }
 
 const CONTACT_TO_EMAIL = 'info@heybelle.ch';
-const CONTACT_FROM_EMAIL = 'heybelle Website <onboarding@resend.dev>';
+const CONTACT_FROM_EMAIL = 'heybelle Website <kontaktformular@heybelle.ch>';
 
 function isValidContact(data) {
   return !!data
